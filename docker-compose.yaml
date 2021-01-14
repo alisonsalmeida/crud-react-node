@@ -1,0 +1,43 @@
+version: "3"
+services:
+  frontend:
+    image: crud-node-frontend
+    container_name: "crud_node_frontend"
+    build:
+      context: "./frontend-react"
+      dockerfile: "Dockerfile"
+    ports:
+      - 80:80
+
+  backend:
+    image: crud-node-backend
+    container_name: "crud_node_backend"
+    build:
+      context: "./backend-node"
+      dockerfile: "Dockerfile"
+    ports:
+      - 3333:3333
+    depends_on:
+      - database
+      - migrate
+
+  migrate:
+    image: crud-node-backend
+    container_name: "migra_node_backend"
+    command:
+      "npx sequelize db:migrate"
+    depends_on:
+      - database
+
+  database:
+    image: postgres:9.6
+    container_name: "crud_database"
+    environment:
+      - POSTGRES_DB=crud
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=icts
+      - TZ=GMT
+    volumes:
+      - "./postgres:/var/lib/postgresql/data"
+    ports:
+      - 5432:5432
